@@ -1,9 +1,3 @@
-import React from 'react'
-
 export default function Footer() {
-  return (
-    <div className='container'>
-      小新公司@2024
-    </div>
-  )
+  return <div className="container">小新公司@2024</div>;
 }

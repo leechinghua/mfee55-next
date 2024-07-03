@@ -1,6 +1,6 @@
 import Layout1 from "@/components/layouts/layout1";
 import Head from "next/head";
-impty
+import Link from "next/link";
 
 export default function Home() {
   return (

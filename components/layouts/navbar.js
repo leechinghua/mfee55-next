@@ -28,9 +28,9 @@ export default function Navbar() {
                 </Link>
               </li>
               <li className="nav-item">
-                <a className="nav-link" href="#/">
-                  Link
-                </a>
+                <Link className="nav-link" href="/address-book/add">
+                  新增通訊錄
+                </Link>
               </li>
             </ul>
             

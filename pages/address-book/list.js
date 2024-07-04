@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from "react";
-import { AB_LIST } from "@/config/api-path";
+import { AB_LIST, AB_REMOVE_ONE_DELETE } from "@/config/api-path";
 import Layout1 from "@/components/layouts/layout1";
 import Link from "next/link";
 import { useRouter } from "next/router";
+import { FaTrashCan, FaRegPenToSquare } from "react-icons/fa6";
 
 export default function ABList() {
   const router = useRouter();
@@ -24,6 +25,7 @@ export default function ABList() {
 
     fetch(`${AB_LIST}?${new URLSearchParams(router.query)}`, {
       signal,
+      credentials: "include"
     })
       .then((r) => r.json())
       .then((data) => {
@@ -38,8 +40,24 @@ export default function ABList() {
     };
   }, [router]);
 
+  const deleteOne = (pk) => {
+    fetch(`${AB_REMOVE_ONE_DELETE}/${pk}`, {
+      method: "DELECT",
+      credentials: "include"
+
+    })
+    .then((r) => r.json())
+      .then((result) => {
+        if (result.success) {
+          router.push(location.search);
+        } else {
+        }
+      })
+      .catch((ex) => console.log(ex));
+  };
+
   return (
-    <Layout1 title="通訊錄列表 | 小新的網站">
+    <Layout1 title="通訊錄列表 | 小新的網站" pageName="ab_list">
       <div className="row">
         <div className="col-6">
           <nav aria-label="Page navigation example">
@@ -100,24 +118,43 @@ export default function ABList() {
           <table className="table table-bordered table-striped">
             <thead>
               <tr>
+                <th>
+                  <FaTrashCan />
+                </th>
                 <th>#</th>
                 <th>姓名</th>
                 <th>電郵</th>
                 <th>手機</th>
                 <th>生日</th>
                 <th>地址</th>
+                <th>
+                  <FaRegPenToSquare />
+                </th>
               </tr>
             </thead>
             <tbody>
               {listData.rows.map((r) => {
                 return (
                   <tr key={r.sid}>
+                    <td>
+                      <a href="#/" onClick={(e) => {
+                          e.preventDefault();
+                          deleteOne(r.sid);
+                        }}>
+                        <FaTrashCan />
+                      </a>
+                    </td>
                     <td>{r.sid}</td>
                     <td>{r.name}</td>
                     <td>{r.email}</td>
                     <td>{r.mobile}</td>
                     <td>{r.birthday}</td>
                     <td>{r.address}</td>
+                    <td>
+                      <a href={`/address-book/${r.sid}`}>
+                        <FaRegPenToSquare />
+                      </a>
+                    </td>
                   </tr>
                 );
               })}

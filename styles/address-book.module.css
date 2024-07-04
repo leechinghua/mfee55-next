@@ -1,0 +1,8 @@
+.NavbarItemActive{
+  background-color: blue;
+  color: white;
+  border-radius: 6px;
+}
+.NavbarItemActive:hover {
+  color: yellow;
+}

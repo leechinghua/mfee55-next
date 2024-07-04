@@ -1,7 +1,8 @@
 import Layout1 from "@/components/layouts/layout1";
-import { useState } from "react";
-import { AB_ADD_POST } from "@/config/api-path";
+import { useEffect, useState } from "react";
+import { AB_GET_ONE, AB_UPDATE_POST } from "@/config/api-path";
 import { z } from "zod";
+import { useRouter } from "next/router";
 
 const initErrors = {
   name: "",
@@ -9,7 +10,8 @@ const initErrors = {
   mobile: "",
 };
 
-export default function ABAdd() {
+export default function ABEdit() {
+  const router = useRouter();
   const [myForm, setMyForm] = useState({
     name: "",
     email: "",
@@ -25,7 +27,7 @@ export default function ABAdd() {
     console.log(e.target.name, e.target.value);
     setMyForm({ ...myForm, [e.target.name]: e.target.value });
   };
-   // 驗證表單的函式
+  // 驗證表單的函式
   const checkForm = () => {
     const schema = z.object({
       name: z.string().min(2, { message: "姓名最少兩個字" }),
@@ -48,13 +50,11 @@ export default function ABAdd() {
   };
   const onSubmit = async (e) => {
     e.preventDefault();
-    if (!checkForm()) {
-    }
-    return;
+    if (!checkForm()) return;
 
     try {
-      const r = await fetch(AB_ADD_POST, {
-        method: "POST",
+      const r = await fetch(`${AB_UPDATE_POST}/${router.query.edit_id}`, {
+        method: "PUT",
         body: JSON.stringify(myForm),
         headers: {
           "Content-Type": "application/json",
@@ -63,23 +63,43 @@ export default function ABAdd() {
       const result = await r.json();
       console.log({ result });
       if (result.success) {
-        alert("新增成功");
-        // 是否要跳到列表頁
+        if (confirm("修改成功, 是否要回列表頁?")) {
+          router.back(); // 回上一頁
+        }
       } else {
-        alert("沒有新增成功!!!");
+        alert("沒有修改!!!");
       }
     } catch (ex) {
       console.log("發生錯誤:", ex);
     }
     console.log(e);
   };
+  useEffect(() => {
+    if (!router.isReady) return;
+    fetch(`${AB_GET_ONE}/ ${router.query.edit_id}`)
+      .then((r) => r.json())
+      .then((result) => {
+        if (result.success) {
+          // const { name, email, mobile, birthday, address } = result.data;
+          const data = { ...result.data };
+          delete data.photos;
+          delete data.created_at;
+          setMyForm(result.data);
+        } else {
+          router.push("/address-book/list");
+        }
+      })
+      .catch((ex) => {
+        router.push("/address-book/list");
+      });
+  }, [router]);
   return (
-    <Layout1 title="新增通訊錄 | 小新的網站" pageName="ab_add">
+    <Layout1 title="修改通訊錄 | 小新的網站" pageName="ab_add">
       <div className="row">
         <div className="col-6">
           <div className="card">
             <div className="card-body">
-              <h5 className="card-title">新增資料</h5>
+              <h5 className="card-title">修改資料</h5>
               <form name="form1" onSubmit={onSubmit}>
                 <div className="mb-3">
                   <label htmlFor="name" className="form-label">
@@ -158,7 +178,7 @@ export default function ABAdd() {
                 </div>
 
                 <button type="submit" className="btn btn-primary">
-                  新增
+                  修改
                 </button>
               </form>
             </div>

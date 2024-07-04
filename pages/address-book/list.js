@@ -19,15 +19,23 @@ export default function ABList() {
   console.log("ABList render----", Date.now(), router.query);
   useEffect(() => {
     if (!router.isReady) return; // router 還沒準備好, 就什麼都不做
-    fetch(`${AB_LIST}?${new URLSearchParams(router.query)}`)
+    const controller = new AbortController();
+    const signal = controller.signal;
+
+    fetch(`${AB_LIST}?${new URLSearchParams(router.query)}`, {
+      signal,
+    })
       .then((r) => r.json())
       .then((data) => {
         setListData(data);
       })
       .catch((ex) => console.log(ex));
-    if (router.query.keyword) {
-      setKeyword(router.query.keyword);
-    }
+    // if (router.query.keyword) {
+    //   setKeyword(router.query.keyword);
+    // }
+    return () => {
+      controller.abort(); // 取消未完成的 AJAX
+    };
   }, [router]);
 
   return (

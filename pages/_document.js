@@ -16,6 +16,7 @@ export default function Document() {
           src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
           defer
         ></script>
+        {/* defer非同步載入 next.js規定 */}
       </body>
     </Html>
   );

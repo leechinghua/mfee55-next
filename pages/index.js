@@ -6,7 +6,7 @@ export default function Home() {
   return (
     <Layout1 title="首頁 | 小新的網站">
       <Head>
-        <meta keyword>/</meta>
+        <meta keyword="小新"/>
       </Head>
       <h2>HOME</h2>
       <div><Link href="/index2">測試頁 2</Link></div>

@@ -8,6 +8,7 @@ export default function Home() {
       <Head>
         <meta keyword="小新" />
       </Head>
+      {/* 不要使用任何Dom的功能 */}
       <h2>{location.href}</h2>
     </Layout1>
   );

@@ -1,12 +1,20 @@
 import React, { useEffect, useState } from "react";
-import { AB_LIST, AB_REMOVE_ONE_DELETE } from "@/config/api-path";
+import { AB_LIST, AB_REMOVE_ONE_DELETE, AB_LIKES } from "@/config/api-path";
 import Layout1 from "@/components/layouts/layout1";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import { FaTrashCan, FaRegPenToSquare } from "react-icons/fa6";
+import {
+  FaRegTrashCan,
+  FaRegPenToSquare,
+  FaHeart,
+  FaRegHeart,
+} from "react-icons/fa6";
+import HeartBtn from "@/components/common/heart-btn";
+import { useAuth } from "@/contexts/shin-auth-context";
 
 export default function ABList() {
   const router = useRouter();
+  const { auth, getAuthHeader } = useAuth();
   // 狀態初始值設定要符合進來的資料格式
   const [listData, setListData] = useState({
     success: false,
@@ -20,21 +28,22 @@ export default function ABList() {
   console.log("ABList render----", Date.now(), router.query);
   useEffect(() => {
     if (!router.isReady) return; // router 還沒準備好, 就什麼都不做
+    // 從 query string 的 keyword 值去填入搜尋欄
+    if (router.query.keyword) {
+      setKeyword(router.query.keyword);
+    }
     const controller = new AbortController();
     const signal = controller.signal;
 
     fetch(`${AB_LIST}?${new URLSearchParams(router.query)}`, {
       signal,
-      credentials: "include"
+      // credentials: "include",
     })
       .then((r) => r.json())
       .then((data) => {
         setListData(data);
       })
       .catch((ex) => console.log(ex));
-    // if (router.query.keyword) {
-    //   setKeyword(router.query.keyword);
-    // }
     return () => {
       controller.abort(); // 取消未完成的 AJAX
     };
@@ -42,11 +51,10 @@ export default function ABList() {
 
   const deleteOne = (pk) => {
     fetch(`${AB_REMOVE_ONE_DELETE}/${pk}`, {
-      method: "DELECT",
-      credentials: "include"
-
+      method: "DELETE",
+      credentials: "include",
     })
-    .then((r) => r.json())
+      .then((r) => r.json())
       .then((result) => {
         if (result.success) {
           router.push(location.search);
@@ -54,6 +62,29 @@ export default function ABList() {
         }
       })
       .catch((ex) => console.log(ex));
+  };
+
+  // 加入或取消最愛
+  const heartHandler = (ab_sid) => {
+    fetch(`${AB_LIKES}/${ab_sid}`, {
+      headers: { ...getAuthHeader() },
+    })
+      .then((r) => r.json())
+      .then((result) => {
+        console.log(result);
+        if (result.success) {
+          const data = structuredClone(listData); // 深層複製
+          const item = data.rows.find((i) => i.sid === ab_sid);
+          if (item) {
+            if (result.action === "add") {
+              item.like = true;
+            } else {
+              item.like = false;
+            }
+            setListData(data);
+          }
+        }
+      });
   };
 
   return (
@@ -119,9 +150,10 @@ export default function ABList() {
             <thead>
               <tr>
                 <th>
-                  <FaTrashCan />
+                  <FaRegTrashCan />
                 </th>
                 <th>#</th>
+                <th>heart</th>
                 <th>姓名</th>
                 <th>電郵</th>
                 <th>手機</th>
@@ -137,23 +169,34 @@ export default function ABList() {
                 return (
                   <tr key={r.sid}>
                     <td>
-                      <a href="#/" onClick={(e) => {
+                      <a
+                        href="#/"
+                        onClick={(e) => {
                           e.preventDefault();
                           deleteOne(r.sid);
-                        }}>
-                        <FaTrashCan />
+                        }}
+                      >
+                        <FaRegTrashCan />
                       </a>
                     </td>
                     <td>{r.sid}</td>
+                    <td>
+                      <HeartBtn
+                        initFull={r.like}
+                        handler={() => {
+                          heartHandler(r.sid);
+                        }}
+                      />
+                    </td>
                     <td>{r.name}</td>
                     <td>{r.email}</td>
                     <td>{r.mobile}</td>
                     <td>{r.birthday}</td>
                     <td>{r.address}</td>
                     <td>
-                      <a href={`/address-book/${r.sid}`}>
+                      <Link href={`/address-book/${r.sid}`}>
                         <FaRegPenToSquare />
-                      </a>
+                      </Link>
                     </td>
                   </tr>
                 );

@@ -1,4 +1,4 @@
-import  { useEffect, useRef } from "react";
+import  { useEffect, useRef, useState } from "react";
 
 export default function LifeA() {
   const [val, setVal] = useState(0);

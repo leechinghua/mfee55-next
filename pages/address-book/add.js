@@ -17,25 +17,26 @@ export default function ABAdd() {
     birthday: "",
     address: "",
   });
-  // 顯示錯誤的狀態
-  const [myErrors, setMyErrors] = useState({
-    ...initErrors,
-  });
+  // 顯示錯誤訊息的狀態
+  const [myErrors, setMyErrors] = useState({ ...initErrors });
+
   const onChange = (e) => {
     console.log(e.target.name, e.target.value);
-    setMyForm({ ...myForm, [e.target.name]: e.target.value });
+    setMyForm({
+      ...myForm,
+      [e.target.name]: e.target.value,
+    });
   };
-   // 驗證表單的函式
+  // 驗證表單的函式
   const checkForm = () => {
     const schema = z.object({
       name: z.string().min(2, { message: "姓名最少兩個字" }),
-      email: z.string().email({ message: "請輸入正確的Email格式" }),
-      mobile: z
-        .string()
-        .regex(/^09\d{2}-?\d{3}-?\d{3}$/, { message: "請輸入正確的手機號碼" }),
+      email: z.string().email({ message: "請輸入正確的 Email 格式" }),
+      mobile: z.string().regex(/^09\d{2}-?\d{3}-?\d{3}$/, {message:"請輸入正確的手機號碼"}),
     });
     const result = schema.safeParse(myForm);
     console.log(JSON.stringify(result, null, 4));
+
     let newErrors = { ...initErrors };
     if (!result.success) {
       for (let i of result.error.issues) {
@@ -47,10 +48,8 @@ export default function ABAdd() {
     return result.success;
   };
   const onSubmit = async (e) => {
-    e.preventDefault();
-    if (!checkForm()) {
-    }
-    return;
+    e.preventDefault(); // 不要讓表單以傳統的方式送出
+    if(! checkForm()) return; // 表單沒通過驗證, 就不往下走
 
     try {
       const r = await fetch(AB_ADD_POST, {
@@ -71,8 +70,8 @@ export default function ABAdd() {
     } catch (ex) {
       console.log("發生錯誤:", ex);
     }
-    console.log(e);
   };
+  console.log("render---");
   return (
     <Layout1 title="新增通訊錄 | 小新的網站" pageName="ab_add">
       <div className="row">
@@ -138,7 +137,6 @@ export default function ABAdd() {
                     value={myForm.birthday}
                     onChange={onChange}
                   />
-                  <div className="form-text"></div>
                 </div>
 
                 <div className="mb-3">
@@ -154,7 +152,6 @@ export default function ABAdd() {
                     name="address"
                     rows="3"
                   ></textarea>
-                  <div className="form-text"></div>
                 </div>
 
                 <button type="submit" className="btn btn-primary">

@@ -6,8 +6,6 @@ import { useRouter } from "next/router";
 import {
   FaRegTrashCan,
   FaRegPenToSquare,
-  FaHeart,
-  FaRegHeart,
 } from "react-icons/fa6";
 import HeartBtn from "@/components/common/heart-btn";
 import { useAuth } from "@/contexts/shin-auth-context";
